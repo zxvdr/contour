@@ -45,13 +45,13 @@ func TestListenerCacheContents(t *testing.T) {
 			contents: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}),
 			want: []proto.Message{
 				&v2.Listener{
 					Name:         ENVOY_HTTP_LISTENER,
 					Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-					FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+					FilterChains: defaultfilterchain(),
 				},
 			},
 		},
@@ -79,14 +79,14 @@ func TestListenerCacheQuery(t *testing.T) {
 			contents: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}),
 			query: []string{ENVOY_HTTP_LISTENER},
 			want: []proto.Message{
 				&v2.Listener{
 					Name:         ENVOY_HTTP_LISTENER,
 					Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-					FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+					FilterChains: defaultfilterchain(),
 				},
 			},
 		},
@@ -94,14 +94,14 @@ func TestListenerCacheQuery(t *testing.T) {
 			contents: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}),
 			query: []string{ENVOY_HTTP_LISTENER, "stats-listener"},
 			want: []proto.Message{
 				&v2.Listener{
 					Name:         ENVOY_HTTP_LISTENER,
 					Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-					FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+					FilterChains: defaultfilterchain(),
 				},
 			},
 		},
@@ -109,7 +109,7 @@ func TestListenerCacheQuery(t *testing.T) {
 			contents: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}),
 			query: []string{"stats-listener"},
 			want:  nil,
@@ -156,7 +156,7 @@ func TestListenerVisit(t *testing.T) {
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}),
 		},
 		"one http only ingressroute": {
@@ -186,7 +186,7 @@ func TestListenerVisit(t *testing.T) {
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}),
 		},
 		"simple ingress with secret": {
@@ -219,7 +219,7 @@ func TestListenerVisit(t *testing.T) {
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}, &v2.Listener{
 				Name:    ENVOY_HTTPS_LISTENER,
 				Address: *envoy.SocketAddress("0.0.0.0", 8443),
@@ -231,7 +231,7 @@ func TestListenerVisit(t *testing.T) {
 						ServerNames: []string{"whatever.example.com"},
 					},
 					TlsContext: tlscontext(auth.TlsParameters_TLSv1_1, "h2", "http/1.1"),
-					Filters:    filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, DEFAULT_HTTPS_ACCESS_LOG)),
+					Filters:    defaultfilters(),
 				}},
 			}),
 		},
@@ -281,7 +281,7 @@ func TestListenerVisit(t *testing.T) {
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}, &v2.Listener{
 				Name:    ENVOY_HTTPS_LISTENER,
 				Address: *envoy.SocketAddress("0.0.0.0", 8443),
@@ -294,14 +294,14 @@ func TestListenerVisit(t *testing.T) {
 							ServerNames: []string{"sortedfirst.example.com"},
 						},
 						TlsContext: tlscontext(auth.TlsParameters_TLSv1_1, "h2", "http/1.1"),
-						Filters:    filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, DEFAULT_HTTPS_ACCESS_LOG)),
+						Filters:    defaultfilters(),
 					},
 					{
 						FilterChainMatch: &listener.FilterChainMatch{
 							ServerNames: []string{"sortedsecond.example.com"},
 						},
 						TlsContext: tlscontext(auth.TlsParameters_TLSv1_1, "h2", "http/1.1"),
-						Filters:    filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, DEFAULT_HTTPS_ACCESS_LOG)),
+						Filters:    defaultfilters(),
 					},
 				},
 			}),
@@ -336,7 +336,7 @@ func TestListenerVisit(t *testing.T) {
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}),
 		},
 		"simple ingressroute with secret": {
@@ -377,7 +377,7 @@ func TestListenerVisit(t *testing.T) {
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("0.0.0.0", 8080),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}, &v2.Listener{
 				Name:    ENVOY_HTTPS_LISTENER,
 				Address: *envoy.SocketAddress("0.0.0.0", 8443),
@@ -386,7 +386,7 @@ func TestListenerVisit(t *testing.T) {
 						ServerNames: []string{"www.example.com"},
 					},
 					TlsContext: tlscontext(auth.TlsParameters_TLSv1_1, "h2", "http/1.1"),
-					Filters:    filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, DEFAULT_HTTPS_ACCESS_LOG)),
+					Filters:    defaultfilters(),
 				}},
 				ListenerFilters: []listener.ListenerFilter{
 					envoy.TLSInspector(),
@@ -451,7 +451,7 @@ func TestListenerVisit(t *testing.T) {
 						ServerNames: []string{"www.example.com"},
 					},
 					TlsContext: tlscontext(auth.TlsParameters_TLSv1_1, "h2", "http/1.1"),
-					Filters:    filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, DEFAULT_HTTPS_ACCESS_LOG)),
+					Filters:    defaultfilters(),
 				}},
 				ListenerFilters: []listener.ListenerFilter{
 					envoy.TLSInspector(),
@@ -494,7 +494,7 @@ func TestListenerVisit(t *testing.T) {
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
 				Address:      *envoy.SocketAddress("127.0.0.100", 9100),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}, &v2.Listener{
 				Name:    ENVOY_HTTPS_LISTENER,
 				Address: *envoy.SocketAddress("127.0.0.200", 9200),
@@ -506,7 +506,7 @@ func TestListenerVisit(t *testing.T) {
 						ServerNames: []string{"whatever.example.com"},
 					},
 					TlsContext: tlscontext(auth.TlsParameters_TLSv1_1, "h2", "http/1.1"),
-					Filters:    filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, DEFAULT_HTTPS_ACCESS_LOG)),
+					Filters:    defaultfilters(),
 				}},
 			}),
 		},
@@ -546,7 +546,7 @@ func TestListenerVisit(t *testing.T) {
 				ListenerFilters: []listener.ListenerFilter{
 					envoy.ProxyProtocol(),
 				},
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG)),
+				FilterChains: defaultfilterchain(),
 			}, &v2.Listener{
 				Name:    ENVOY_HTTPS_LISTENER,
 				Address: *envoy.SocketAddress("0.0.0.0", 8443),
@@ -559,7 +559,7 @@ func TestListenerVisit(t *testing.T) {
 						ServerNames: []string{"whatever.example.com"},
 					},
 					TlsContext: tlscontext(auth.TlsParameters_TLSv1_1, "h2", "http/1.1"),
-					Filters:    filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, DEFAULT_HTTPS_ACCESS_LOG)),
+					Filters:    defaultfilters(),
 				}},
 			}),
 		},
@@ -595,9 +595,10 @@ func TestListenerVisit(t *testing.T) {
 				},
 			},
 			want: listenermap(&v2.Listener{
-				Name:         ENVOY_HTTP_LISTENER,
-				Address:      *envoy.SocketAddress(DEFAULT_HTTP_LISTENER_ADDRESS, DEFAULT_HTTP_LISTENER_PORT),
-				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, "/tmp/http_access.log")),
+				Name:    ENVOY_HTTP_LISTENER,
+				Address: *envoy.SocketAddress(DEFAULT_HTTP_LISTENER_ADDRESS, DEFAULT_HTTP_LISTENER_PORT),
+				FilterChains: filterchain(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, "/tmp/http_access.log",
+					DEFAULT_RATE_LIMIT_SERVICE_DOMAIN, DEFAULT_RATE_LIMIT_SERVICE_STAGE, DEFAULT_RATE_LIMIT_SERVICE_FAILURE_MODE_DENY)),
 			}, &v2.Listener{
 				Name:    ENVOY_HTTPS_LISTENER,
 				Address: *envoy.SocketAddress(DEFAULT_HTTPS_LISTENER_ADDRESS, DEFAULT_HTTPS_LISTENER_PORT),
@@ -609,7 +610,8 @@ func TestListenerVisit(t *testing.T) {
 						ServerNames: []string{"whatever.example.com"},
 					},
 					TlsContext: tlscontext(auth.TlsParameters_TLSv1_1, "h2", "http/1.1"),
-					Filters:    filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, "/tmp/https_access.log")),
+					Filters: filters(envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, "/tmp/https_access.log",
+						DEFAULT_RATE_LIMIT_SERVICE_DOMAIN, DEFAULT_RATE_LIMIT_SERVICE_STAGE, DEFAULT_RATE_LIMIT_SERVICE_FAILURE_MODE_DENY)),
 				}},
 			}),
 		},
@@ -634,8 +636,26 @@ func TestListenerVisit(t *testing.T) {
 	}
 }
 
+func defaultfilters() []listener.Filter {
+	return filters(envoy.HTTPConnectionManager(
+		ENVOY_HTTPS_LISTENER,
+		DEFAULT_HTTPS_ACCESS_LOG,
+		DEFAULT_RATE_LIMIT_SERVICE_DOMAIN,
+		DEFAULT_RATE_LIMIT_SERVICE_STAGE,
+		DEFAULT_RATE_LIMIT_SERVICE_FAILURE_MODE_DENY))
+}
+
 func filters(first listener.Filter, rest ...listener.Filter) []listener.Filter {
 	return append([]listener.Filter{first}, rest...)
+}
+
+func defaultfilterchain() []listener.FilterChain {
+	return filterchain(envoy.HTTPConnectionManager(
+		ENVOY_HTTP_LISTENER,
+		DEFAULT_HTTP_ACCESS_LOG,
+		DEFAULT_RATE_LIMIT_SERVICE_DOMAIN,
+		DEFAULT_RATE_LIMIT_SERVICE_STAGE,
+		DEFAULT_RATE_LIMIT_SERVICE_FAILURE_MODE_DENY))
 }
 
 func filterchain(filters ...listener.Filter) []listener.FilterChain {

@@ -21,6 +21,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
+	ratelimit "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	envoy_config_v2_tcpproxy "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/tcp_proxy/v2"
 	"github.com/envoyproxy/go-control-plane/pkg/util"
@@ -43,13 +44,13 @@ func TestListener(t *testing.T) {
 			name:    "http",
 			address: "0.0.0.0",
 			port:    9000,
-			f:       []listener.Filter{HTTPConnectionManager("http", "/dev/null")},
+			f:       []listener.Filter{HTTPConnectionManager("http", "/dev/null", "contour", 0, false)},
 			want: &v2.Listener{
 				Name:    "http",
 				Address: *SocketAddress("0.0.0.0", 9000),
 				FilterChains: []listener.FilterChain{{
 					Filters: []listener.Filter{
-						HTTPConnectionManager("http", "/dev/null"),
+						HTTPConnectionManager("http", "/dev/null", "contour", 0, false),
 					},
 				}},
 			},
@@ -62,7 +63,7 @@ func TestListener(t *testing.T) {
 				ProxyProtocol(),
 			},
 			f: []listener.Filter{
-				HTTPConnectionManager("http-proxy", "/dev/null"),
+				HTTPConnectionManager("http-proxy", "/dev/null", "contour", 0, false),
 			},
 			want: &v2.Listener{
 				Name:    "http-proxy",
@@ -72,7 +73,7 @@ func TestListener(t *testing.T) {
 				},
 				FilterChains: []listener.FilterChain{{
 					Filters: []listener.Filter{
-						HTTPConnectionManager("http-proxy", "/dev/null"),
+						HTTPConnectionManager("http-proxy", "/dev/null", "contour", 0, false),
 					},
 				}},
 			},
@@ -247,6 +248,15 @@ func TestHTTPConnectionManager(t *testing.T) {
 						}, {
 							Name: util.GRPCWeb,
 						}, {
+							Name: util.HTTPRateLimit,
+							ConfigType: &http.HttpFilter_TypedConfig{
+								TypedConfig: any(&ratelimit.RateLimit{
+									Domain:          "contour",
+									Stage:           uint32(0),
+									FailureModeDeny: false,
+								}),
+							},
+						}, {
 							Name: util.Router,
 						}},
 						HttpProtocolOptions: &core.Http1ProtocolOptions{
@@ -265,7 +275,7 @@ func TestHTTPConnectionManager(t *testing.T) {
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := HTTPConnectionManager(tc.routename, tc.accesslog)
+			got := HTTPConnectionManager(tc.routename, tc.accesslog, "contour", 0, false)
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Fatal(diff)
 			}

@@ -195,4 +195,16 @@ type BootstrapConfig struct {
 
 	// GrpcClientKey is the filename that contains a client key for secure gRPC with TLS.
 	GrpcClientKey string
+
+	// RateLimitServiceEnabled enables ratelimiting filter
+	// Defaults to false.
+	RateLimitServiceEnabled bool
+
+	// RateLimitServiceName is the address of the ratelimiting impl service
+	// Defaults to 127.0.0.1
+	RateLimitServiceAddress string
+
+	// RateLimitServicePort is the port of the ratelimiting impl service
+	// Defaults to 8081.
+	RateLimitServicePort int
 }

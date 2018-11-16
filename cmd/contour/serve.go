@@ -76,6 +76,7 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 	serve.Flag("envoy-service-http-port", "Kubernetes Service port for HTTP requests").Default("8080").IntVar(&ctx.httpPort)
 	serve.Flag("envoy-service-https-port", "Kubernetes Service port for HTTPS requests").Default("8443").IntVar(&ctx.httpsPort)
 	serve.Flag("use-proxy-protocol", "Use PROXY protocol for all listeners").BoolVar(&ctx.useProxyProto)
+	serve.Flag("rate-limit-stage", "Stage used for rate limiting").StringVar(&ctx.ingressClass)
 
 	return serve, &ctx
 }
